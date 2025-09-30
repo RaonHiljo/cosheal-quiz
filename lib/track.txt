@@ -1,0 +1,22 @@
+export type EventName =
+  | 'quiz_start'
+  | 'question_answered'
+  | 'quiz_submitted'
+  | 'result_shown'
+  | 'cta_click_amazon'
+  | 'cta_click_see_why';
+
+export function track(name: EventName, props: Record<string, any> = {}) {
+  // (선택) GA4로 전송
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', name, props);
+  }
+
+  // (선택) 자체 수집 API로 전송
+  fetch('/api/analytics', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    keepalive: true,
+    body: JSON.stringify({ name, props, ts: Date.now() })
+  }).catch(() => {});
+}
